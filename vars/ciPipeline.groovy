@@ -17,9 +17,6 @@ def call(Map config = [:]) {
         sh 'gitleaks detect --source . --report-format=json --report-path=gitleaks-report.json || true'
     }
     
-     stage('Build') {
-        sh "./gradlew clean build -x test"
-    }
 
    stage('SonarQube Scan') {
     withSonarQubeEnv('sonarqube-server') {
