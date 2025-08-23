@@ -13,11 +13,14 @@ def call(Map config = [:]) {
         sh 'gitleaks detect --source . --report-format=json --report-path=gitleaks-report.json || true'
     }
 
-    stage('SonarQube Scan') {
+   stage('SonarQube Scan') {
     withSonarQubeEnv('sonarqube-server') {
         withCredentials([string(credentialsId: 'sonar-cred', variable: 'SONARQUBE_TOKEN')]) {
+         
+            def SONAR_PROJECT_KEY = "adservice_microservice" 
+
             sh "./gradlew clean build sonarqube -x verifyGoogleJavaFormat \
-                -Dsonar.projectKey=${IMAGE_NAME} \
+                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                 -Dsonar.host.url=${SONAR_HOST_URL} \
                 -Dsonar.login=${SONARQUBE_TOKEN}"
         }
