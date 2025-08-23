@@ -51,7 +51,7 @@ def call(Map config = [:]) {
 
             stage('Docker Push - DockerHub') {
                 steps {
-                    withDockerRegistry([credentialsId: 'dockerhub-creds']) {
+                    withDockerRegistry([credentialsId: 'docker-cred']) {
                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKER_HUB_CREDENTIALS_USR}/${IMAGE_NAME}:${IMAGE_TAG}"
                         sh "docker push ${devadineelima137}/${IMAGE_NAME}:${IMAGE_TAG}"
                     }
