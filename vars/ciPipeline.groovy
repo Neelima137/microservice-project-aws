@@ -5,12 +5,20 @@ def call(Map config = [:]) {
     def AWS_REGION   = "ap-south-1"
     def ECR_REGISTRY = "483898563284.dkr.ecr.ap-south-1.amazonaws.com"
 
+    env.JAVA_HOME = tool name: 'jdk19', type: 'jdk'
+    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+
+
     stage('Checkout') {
         checkout scm
     }
 
     stage('GitLeaks Scan') {
         sh 'gitleaks detect --source . --report-format=json --report-path=gitleaks-report.json || true'
+    }
+    
+     stage('Build') {
+        sh "./gradlew clean build -x test"
     }
 
    stage('SonarQube Scan') {
