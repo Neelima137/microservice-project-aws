@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Deploy') {
             steps {
-                deployToK8s(
+                cdPipeline(
                     appName: "microservice-app",
                     imageName: "483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice",
                     tag: env.BUILD_NUMBER,
