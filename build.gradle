@@ -3,6 +3,7 @@ plugins {
     id 'com.github.sherter.google-java-format' version '0.9'
     id 'idea'
     id 'application'
+    id 'org.sonarqube' version '4.4.1.3373'
 }
 
 repositories {
@@ -114,4 +115,13 @@ applicationDistribution.into('bin') {
     from(adService)
     from(adServiceClient)
     fileMode = 0755
+}
+sonarqube {
+    properties {
+        property "sonar.projectKey", "hipstershop-adservice"
+        property "sonar.projectName", "Hipstershop Ad Service"
+        property "sonar.host.url", "http://13.201.92.146:9000"
+        // Token will come from Jenkins env SONARQUBE_TOKEN
+        property "sonar.login", System.getenv("SONARQUBE_TOKEN")
+    }
 }
