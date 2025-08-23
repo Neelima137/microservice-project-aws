@@ -4,6 +4,8 @@ def call(Map config = [:]) {
     def IMAGE_TAG    = config.tag ?: env.BUILD_NUMBER
     def AWS_REGION   = "ap-south-1"
     def ECR_REGISTRY = "483898563284.dkr.ecr.ap-south-1.amazonaws.com"
+    def SONAR_PROJECT_KEY = "adservice_microservice" 
+    def DOCKERHUB_REPO = "devadineelima137/${IMAGE_NAME}"
 
     env.JAVA_HOME = tool name: 'jdk19', type: 'jdk'
     env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
@@ -21,10 +23,7 @@ def call(Map config = [:]) {
    stage('SonarQube Scan') {
     withSonarQubeEnv('sonarqube-server') {
         withCredentials([string(credentialsId: 'sonar-cred', variable: 'SONARQUBE_TOKEN')]) {
-         
-            def SONAR_PROJECT_KEY = "adservice_microservice" 
-
-            sh "./gradlew clean build sonarqube -x verifyGoogleJavaFormat \
+         sh "./gradlew clean build sonarqube -x verifyGoogleJavaFormat \
                 -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                 -Dsonar.host.url=${SONAR_HOST_URL} \
                 -Dsonar.login=${SONARQUBE_TOKEN}"
@@ -43,12 +42,16 @@ def call(Map config = [:]) {
         sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
     }
 
-    stage('Docker Push - DockerHub') {
-        withDockerRegistry([credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/']) {
-            sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} devadineelima137/${IMAGE_NAME}:${IMAGE_TAG}"
-            sh "docker push devadineelima137/${IMAGE_NAME}:${IMAGE_TAG}"
-        }
+  
+
+stage('Docker Push - DockerHub') {
+    withDockerRegistry([credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/']) {
+        sh """
+            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_REPO}:${IMAGE_TAG}
+            docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}
+        """
     }
+}
 
     stage('Docker Push - AWS ECR') {
         withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
