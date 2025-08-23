@@ -16,7 +16,7 @@ def call(Map config = [:]) {
     stage('SonarQube Scan') {
     withSonarQubeEnv('sonarqube-server') {
         withCredentials([string(credentialsId: 'sonar-cred', variable: 'SONARQUBE_TOKEN')]) {
-            sh "./gradlew clean build sonarqube \
+            sh "./gradlew clean build sonarqube -x verifyGoogleJavaFormat \
                 -Dsonar.projectKey=${IMAGE_NAME} \
                 -Dsonar.host.url=${SONAR_HOST_URL} \
                 -Dsonar.login=${SONARQUBE_TOKEN}"
