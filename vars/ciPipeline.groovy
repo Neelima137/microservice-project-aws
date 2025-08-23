@@ -54,15 +54,14 @@ stage('Docker Push - DockerHub') {
 }
 
     stage('Docker Push - AWS ECR') {
-        withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
-            sh """
-              aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
-              docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-              docker push ${ECR_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}
-            """
-        }
+    withAWS(credentials: 'aws-creds', region: "${AWS_REGION}") {
+        sh """
+          aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY}
+          docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}
+          docker push ${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}
+        """
     }
-
+}
     stage('Trivy Scan') {
         sh "trivy image ${IMAGE_NAME}:${IMAGE_TAG} > trivy-report.txt || true"
     }
