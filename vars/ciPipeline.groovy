@@ -14,12 +14,19 @@ def call(Map config = [:]) {
     }
 
     stage('SonarQube Scan') {
-        withSonarQubeEnv('sonarqube-server') {
-            withCredentials([string(credentialsId: 'sonar-cred', variable: 'SONARQUBE_TOKEN')]) {
-                sh "mvn clean verify sonar:sonar -Dsonar.projectKey=${IMAGE_NAME} -Dsonar.login=${SONARQUBE_TOKEN}"
+    withSonarQubeEnv('sonarqube-server') {
+        withCredentials([string(credentialsId: 'sonar-cred', variable: 'SONARQUBE_TOKEN')]) {
+            dir("${SERVICE_NAME}") { // if build.gradle is inside service folder
+                sh """
+                    chmod +x ./gradlew
+                    ./gradlew clean build sonarqube \
+                      -Dsonar.projectKey=${IMAGE_NAME} \
+                      -Dsonar.login=${SONARQUBE_TOKEN}
+                """
             }
         }
     }
+}
 
     stage('SonarQube Quality Gate') {
         timeout(time: 5, unit: 'MINUTES') {
