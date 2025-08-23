@@ -16,6 +16,13 @@ def call(Map config = [:]) {
             serverUrl: config.clusterUrl ?: 'https://DF85F618DC81B5AD5E6C93FC8F4DE955.gr7.ap-south-1.eks.amazonaws.com'
         ]]) {
             try {
+                // Authenticate to EKS cluster
+                sh """
+                    echo "Logging into EKS cluster..."
+                    aws eks --region ap-south-1 update-kubeconfig --name microservices --profile ${config.awsProfile ?: 'default'}
+                    kubectl get nodes
+                """
+
                 // Update image in manifest
                 sh """
                     echo "Updating manifest with new image..."
