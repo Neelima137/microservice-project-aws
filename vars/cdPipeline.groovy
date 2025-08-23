@@ -3,6 +3,9 @@ def call(Map config = [:]) {
     def IMAGE_TAG  = config.tag ?: env.BUILD_NUMBER
     def NAMESPACE  = config.namespace ?: "webapps"
 
+    // Define deployments upfront
+    def deployments = []
+
     if (fileExists('deployment-service.yml')) {
         withKubeCredentials(kubectlCredentials: [[
             caCertificate: '',
@@ -23,7 +26,7 @@ def call(Map config = [:]) {
                 sh "echo Applying deployment... && kubectl apply -f deployment-service.yml -n ${NAMESPACE}"
 
                 // Get all deployment names dynamically
-                def deployments = sh(
+                deployments = sh(
                     script: "kubectl get -f deployment-service.yml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}'",
                     returnStdout: true
                 ).trim().split("\\s+")
@@ -48,7 +51,7 @@ def call(Map config = [:]) {
             } catch (err) {
                 echo "❌ Deployment failed: ${err}"
 
-                // Rollback all deployments
+                // Rollback all deployments only if any exist
                 for (dep in deployments) {
                     sh "kubectl rollout undo deployment/${dep} -n ${NAMESPACE} || true"
                 }
@@ -62,6 +65,6 @@ def call(Map config = [:]) {
             }
         }
     } else {
-        echo "No deployment manifest found. trigger main deployment ."
+        echo "No deployment manifest found. Skipping Kubernetes deployment."
     }
 }
