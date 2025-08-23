@@ -1,24 +1,17 @@
+@Library('my-shared-lib') _  
+
 pipeline {
     agent any
 
     stages {
-        stage('Build & Tag Docker Image') {
+        stage('CI') {
             steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                        sh "docker build -t adijaiswal/recommendationservice:latest ."
-                    }
-                }
+                ciPipeline()
             }
         }
-        
-        stage('Push Docker Image') {
+        stage('CD') {
             steps {
-                script {
-                    withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                        sh "docker push adijaiswal/recommendationservice:latest "
-                    }
-                }
+                cdPipeline()
             }
         }
     }
