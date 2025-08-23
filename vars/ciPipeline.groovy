@@ -5,7 +5,7 @@ def call(Map config = [:]) {
     def AWS_REGION   = "ap-south-1"
     def ECR_REGISTRY = "483898563284.dkr.ecr.ap-south-1.amazonaws.com"
     def SONAR_PROJECT_KEY = "adservice_microservice" 
-    def DOCKERHUB_REPO = "devadineelima137/${IMAGE_NAME}"
+    
 
     env.JAVA_HOME = tool name: 'jdk19', type: 'jdk'
     env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
@@ -47,8 +47,8 @@ def call(Map config = [:]) {
 stage('Docker Push - DockerHub') {
     withDockerRegistry([credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/']) {
         sh """
-            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${DOCKERHUB_REPO}:${IMAGE_TAG}
-            docker push ${DOCKERHUB_REPO}:${IMAGE_TAG}
+            docker tag ${IMAGE_NAME}:${IMAGE_TAG} devadineelima137/microservice:${IMAGE_TAG}
+            docker push devadineelima137/microservice:${IMAGE_TAG}
         """
     }
 }
