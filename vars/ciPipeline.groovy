@@ -79,3 +79,4 @@ if (!fileExists('Dockerfile')) {
     // Always archive reports
     archiveArtifacts artifacts: '*.json,*.txt', allowEmptyArchive: true
 }
+}
