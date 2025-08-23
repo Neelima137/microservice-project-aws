@@ -4,7 +4,18 @@ pipeline {
     agent any
 
     stages {
-        stage('Deploy') {
+        stage('CI') {
+            steps {
+                ciPipeline(
+                    repo: "my-app",
+                    branch: env.BRANCH_NAME,
+                    imageName: "483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice",
+                    tag: env.BUILD_NUMBER
+                )
+            }
+        }
+
+        stage('CD') {
             steps {
                 cdPipeline(
                     appName: "microservice-app",
