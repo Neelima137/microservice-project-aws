@@ -9,7 +9,7 @@ def call(Map config = [:]) {
 
     def deployments = []
 
-    if (!fileExists('deployment-service.yml')) {
+    if (!fileExists('deployment-service.yaml')) {
         echo "No deployment manifest found. Skipping Kubernetes deployment."
         return
     }
