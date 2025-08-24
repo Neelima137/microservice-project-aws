@@ -21,6 +21,7 @@ spec:
         runAsUser: 1000
       containers:
       - name: server
+        image:devadineelima137/emailservice:latest
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -28,7 +29,6 @@ spec:
               - ALL
           privileged: false
           readOnlyRootFilesystem: true
-        image:devadineelima137/emailservice:latest
         ports:
         - containerPort: 8080
         env:
