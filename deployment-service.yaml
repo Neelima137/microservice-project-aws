@@ -14,7 +14,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/checkoutservice
+          image:  483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice:checkoutservice-latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5050
