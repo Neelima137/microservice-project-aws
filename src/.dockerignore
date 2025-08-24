@@ -9,24 +9,15 @@
 
 
 
-# Ignore build artifacts
+**/*.sh
+**/*.bat
 **/bin/
 **/obj/
 **/out/
-
-# Ignore scripts (if any)
-**/*.sh
-**/*.bat
-
-# Ignore local/test-only things
 tests/
-*.md
-
-# Ignore infra/devops files
-Jenkinsfile
-deployment-service.yaml
-.dockerignore
-Dockerfile*
 .git
 .gitignore
+Jenkinsfile
+docker-compose*
+README.md
 
