@@ -10,11 +10,23 @@ pipeline {
     stages {
         stage('CI') {
             steps {
-                ciPipeline(
-                    repo: "my-app",
-                    branch: env.BRANCH_NAME,
-                    serviceName: params.SERVICE_NAME
-                )
+                script {
+                    if (params.SERVICE_NAME == "cartservice") {
+                        dir("src") {
+                            ciPipeline(
+                                repo: "my-app",
+                                branch: env.BRANCH_NAME,
+                                serviceName: params.SERVICE_NAME
+                            )
+                        }
+                    } else {
+                        ciPipeline(
+                            repo: "my-app",
+                            branch: env.BRANCH_NAME,
+                            serviceName: params.SERVICE_NAME
+                        )
+                    }
+                }
             }
         }
 
