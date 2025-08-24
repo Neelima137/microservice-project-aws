@@ -15,7 +15,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/paymentservice
+          image: 483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice:paymentservice-latest 
           imagePullPolicy: Always
           ports:
             - containerPort: 50051
