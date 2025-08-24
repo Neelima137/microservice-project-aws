@@ -16,7 +16,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/adservice
+          image: 483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice:adservice-latest
           imagePullPolicy: Always
           ports:
             - containerPort: 9555
