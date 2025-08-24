@@ -21,7 +21,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/emailservice:latest
+          image: ${ECR_REGISTRY}/emailservice
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
@@ -82,7 +82,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/checkoutservice:latest
+          image: ${ECR_REGISTRY}/checkoutservice
           imagePullPolicy: Always
           ports:
             - containerPort: 5050
@@ -145,7 +145,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/recommendationservice:latest
+          image: ${ECR_REGISTRY}/recommendationservice
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -203,7 +203,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/frontend:latest
+          image: ${ECR_REGISTRY}/frontend
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -294,7 +294,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/paymentservice:latest
+          image: ${ECR_REGISTRY}/paymentservice
           imagePullPolicy: Always
           ports:
             - containerPort: 50051
@@ -348,7 +348,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/productcatalogservice:latest
+          image: ${ECR_REGISTRY}/productcatalogservice
           imagePullPolicy: Always
           ports:
             - containerPort: 3550
@@ -402,7 +402,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/cartservice:latest
+          image: ${ECR_REGISTRY}/cartservice
           imagePullPolicy: Always
           ports:
             - containerPort: 7070
@@ -468,7 +468,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: ${ECR_REGISTRY}/loadgenerator:latest
+          image: ${ECR_REGISTRY}/loadgenerator
           imagePullPolicy: Always
           env:
             - name: FRONTEND_ADDR
@@ -501,7 +501,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/currencyservice:latest
+          image: ${ECR_REGISTRY}/currencyservice
           imagePullPolicy: Always
           ports:
             - name: grpc
@@ -555,7 +555,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/shippingservice:latest
+          image: ${ECR_REGISTRY}/shippingservice
           imagePullPolicy: Always
           ports:
             - containerPort: 50051
@@ -665,7 +665,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/adservice:latest
+          image: ${ECR_REGISTRY}/adservice
           imagePullPolicy: Always
           ports:
             - containerPort: 9555
