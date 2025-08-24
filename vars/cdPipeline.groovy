@@ -3,10 +3,16 @@ def call(Map config = [:]) {
     def IMAGE_TAG  = config.tag ?: env.BUILD_NUMBER
     def NAMESPACE  = config.namespace ?: "webapps"
 
-    // Define deployments upfront
     def deployments = []
 
-    if (fileExists('deployment-service.yml')) {
+    if (!fileExists('deployment-service.yml')) {
+        echo "No deployment manifest found. Skipping Kubernetes deployment."
+        return
+    }
+
+    // Wrap all AWS-dependent steps in withAWS
+    withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
+
         withKubeCredentials(kubectlCredentials: [[
             caCertificate: '',
             clusterName: 'microservices',
@@ -15,53 +21,57 @@ def call(Map config = [:]) {
             namespace: NAMESPACE,
             serverUrl: config.clusterUrl ?: 'https://DF85F618DC81B5AD5E6C93FC8F4DE955.gr7.ap-south-1.eks.amazonaws.com'
         ]]) {
+
             try {
-                // Authenticate to EKS cluster using AWS credentials
-               withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
-                echo "Logging into EKS cluster..."
-                sh "aws eks update-kubeconfig --name microservices"
-                sh "kubectl get nodes"
-               }
+                // Single shell block ensures AWS creds persist
+                sh """
+                    set -e
 
+                    echo "Logging into EKS cluster..."
+                    aws eks update-kubeconfig --name microservices
 
-                // Update image in manifest
-                sh '''
+                    echo "Checking cluster nodes..."
+                    kubectl get nodes
+
                     echo "Updating manifest with new image..."
                     sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_NAME}:${IMAGE_TAG}|g" deployment-service.yml
-                '''
 
-                // Apply all deployments
-                sh "echo Applying deployment... && kubectl apply -f deployment-service.yml -n ${NAMESPACE}"
+                    echo "Applying deployment..."
+                    kubectl apply -f deployment-service.yml -n ${NAMESPACE}
 
-                // Get all deployment names dynamically
-                deployments = sh(
-                    script: "kubectl get -f deployment-service.yml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}'",
-                    returnStdout: true
-                ).trim().split("\\s+")
+                    echo "Fetching deployment names..."
+                    deployments=(\$(kubectl get -f deployment-service.yml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}'))
 
-                echo "Deployments found: ${deployments}"
+                    for dep in "\${deployments[@]}"; do
+                        echo "⏳ Waiting for rollout of deployment: \$dep"
+                        kubectl rollout status deployment/\$dep -n ${NAMESPACE} || echo "Rollout failed for \$dep, continuing..."
+                    done
 
-                // Rollout each deployment
-                for (dep in deployments) {
-                    echo "⏳ Waiting for rollout of deployment: ${dep}"
-                    sh "kubectl rollout status deployment/${dep} -n ${NAMESPACE} || echo 'Rollout check failed for ${dep}, continuing...'"
-                }
+                    echo "✅ Deployment successful: ${IMAGE_NAME}:${IMAGE_TAG}"
 
-                echo "✅ Deployment successful: ${IMAGE_NAME}:${IMAGE_TAG}"
-
-                // Optional: Check services & pods
-                sh '''
-                    echo "Checking Services & Pods..."
+                    echo "Checking services & pods..."
                     kubectl get svc -n ${NAMESPACE}
                     kubectl get pods -n ${NAMESPACE}
-                '''
+
+                    # -------- Optional: Prometheus + Grafana --------
+                    echo "Deploying monitoring stack..."
+                    if [ -f prometheus-deployment.yml ]; then
+                        kubectl apply -f prometheus-deployment.yml -n monitoring
+                    fi
+
+                    if [ -f grafana-deployment.yml ]; then
+                        kubectl apply -f grafana-deployment.yml -n monitoring
+                    fi
+
+                    kubectl get pods -n monitoring || echo "Monitoring stack not found, skipping."
+                """
 
             } catch (err) {
                 echo "❌ Deployment failed: ${err}"
 
-                // Rollback all deployments only if any exist
+                // Rollback deployments if any exist
                 for (dep in deployments) {
-                    sh "kubectl rollout undo deployment/${dep} -n ${NAMESPACE} || true"
+                    sh "kubectl rollout undo deployment/\$dep -n ${NAMESPACE} || true"
                 }
 
                 // Archive logs
@@ -72,7 +82,5 @@ def call(Map config = [:]) {
                 error("Deployment failed, rollback triggered")
             }
         }
-    } else {
-        echo "No deployment manifest found. Skipping Kubernetes deployment."
     }
 }
