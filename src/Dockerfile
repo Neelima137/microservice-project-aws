@@ -48,14 +48,14 @@
 
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
+WORKDIR /app
 
 # Copy only csproj first (better caching)
-COPY cartservice.csproj ./
+COPY src/cartservice.csproj ./ 
 RUN dotnet restore cartservice.csproj -r linux-musl-x64
 
-# Copy rest of the source
-COPY . .
+# Copy all source files (just once!)
+COPY src/ .
 
 # Publish
 RUN dotnet publish cartservice.csproj \
