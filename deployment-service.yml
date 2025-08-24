@@ -21,7 +21,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: server
-          image: devadineelima137/emailservice:latest
+          image: ${ECR_REGISTRY}/emailservice:latest
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
@@ -82,7 +82,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: devadineelima137/checkoutservice:latest
+          image: ${ECR_REGISTRY}/checkoutservice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5050
@@ -145,7 +145,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: devadineelima137/recommendationservice:latest
+          image: ${ECR_REGISTRY}/recommendationservice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -203,7 +203,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: devadineelima137/frontend:latest
+          image: ${ECR_REGISTRY}/frontend:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -294,7 +294,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: devadineelima137/paymentservice:latest
+          image: ${ECR_REGISTRY}/paymentservice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 50051
@@ -348,7 +348,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: devadineelima137/productcatalogservice:latest
+          image: ${ECR_REGISTRY}/productcatalogservice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3550
@@ -402,7 +402,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: devadineelima137/cartservice:latest
+          image: ${ECR_REGISTRY}/cartservice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 7070
@@ -468,7 +468,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: devadineelima137/loadgenerator:latest
+          image: ${ECR_REGISTRY}/loadgenerator:latest
           imagePullPolicy: Always
           env:
             - name: FRONTEND_ADDR
@@ -501,7 +501,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: devadineelima137/currencyservice:latest
+          image: ${ECR_REGISTRY}/currencyservice:latest
           imagePullPolicy: Always
           ports:
             - name: grpc
@@ -555,7 +555,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: devadineelima137/shippingservice:latest
+          image: ${ECR_REGISTRY}/shippingservice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 50051
@@ -665,7 +665,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: server
-          image: devadineelima137/adservice:latest
+          image: ${ECR_REGISTRY}/adservice:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 9555
