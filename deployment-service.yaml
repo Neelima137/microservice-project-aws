@@ -16,7 +16,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/frontend
+          image:  483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice:frontend-latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
