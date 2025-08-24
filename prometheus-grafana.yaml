@@ -1,171 +1,59 @@
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prometheus-config
-  namespace: monitoring
-data:
-  prometheus.yml: |
-    global:
-      scrape_interval: 15s
-    scrape_configs:
-      - job_name: 'kubernetes-pods'
-        kubernetes_sd_configs:
-          - role: pod
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
-            action: keep
-            regex: true
-          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
-            action: replace
-            target_label: __metrics_path__
-            regex: (.+)
-          - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
-            action: replace
-            regex: (.+):(?:\d+);(\d+)
-            replacement: $1:$2
-            target_label: __address__
-
-      - job_name: 'node-exporter'
-        kubernetes_sd_configs:
-          - role: node
-        metrics_path: /metrics
-        relabel_configs:
-          - action: labelmap
-            regex: __meta_kubernetes_node_label_(.+)
-
----
+# cartservice
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prometheus
-  namespace: monitoring
+  name: cartservice
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: prometheus
+      app: cartservice
   template:
     metadata:
       labels:
-        app: prometheus
+        app: cartservice
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "7070"
+        prometheus.io/path: "/metrics"   # Add if your app exposes metrics
     spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
       containers:
-      - name: prometheus
-        image: prom/prometheus:v2.45.0
-        args:
-          - "--config.file=/etc/prometheus/prometheus.yml"
-          - "--storage.tsdb.path=/prometheus"
-        ports:
-        - containerPort: 9090
-        volumeMounts:
-        - name: prometheus-config-volume
-          mountPath: /etc/prometheus/
-        - name: prometheus-data
-          mountPath: /prometheus
-      volumes:
-      - name: prometheus-config-volume
-        configMap:
-          name: prometheus-config
-      - name: prometheus-data
-        emptyDir: {}
+        - name: server
+          image: 483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice:cartservice-latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 7070
+          env:
+            - name: REDIS_ADDR
+              value: "redis-cart:6379"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 64Mi
+            limits:
+              cpu: 300m
+              memory: 128Mi
+          readinessProbe:
+            tcpSocket:
+              port: 7070
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 7070
+            initialDelaySeconds: 15
+            periodSeconds: 10
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: prometheus
-  namespace: monitoring
+  name: cartservice
 spec:
   type: ClusterIP
   selector:
-    app: prometheus
+    app: cartservice
   ports:
-    - name: web
-      port: 9090
-      targetPort: 9090
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: grafana
-  template:
-    metadata:
-      labels:
-        app: grafana
-    spec:
-      containers:
-      - name: grafana
-        image: grafana/grafana:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: GF_SECURITY_ADMIN_USER
-          value: admin
-        - name: GF_SECURITY_ADMIN_PASSWORD
-          value: admin
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: grafana
-  namespace: monitoring
-spec:
-  type: NodePort
-  selector:
-    app: grafana
-  ports:
-    - port: 3000
-      targetPort: 3000
-      nodePort: 32000
----
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: node-exporter
-  namespace: monitoring
-  labels:
-    app: node-exporter
-spec:
-  selector:
-    matchLabels:
-      app: node-exporter
-  template:
-    metadata:
-      labels:
-        app: node-exporter
-    spec:
-      containers:
-        - name: node-exporter
-          image: prom/node-exporter:v1.3.1
-          ports:
-            - containerPort: 9100
-          volumeMounts:
-            - mountPath: /host/proc
-              name: proc
-              readOnly: true
-            - mountPath: /host/sys
-              name: sys
-              readOnly: true
-            - mountPath: /host/root
-              name: root
-              readOnly: true
-      volumes:
-        - name: proc
-          hostPath:
-            path: /proc
-            type: Directory
-        - name: sys
-          hostPath:
-            path: /sys
-            type: Directory
-        - name: root
-          hostPath:
-            path: /
-            type: Directory
-
+    - name: grpc
+      port: 7070
+      targetPort: 7070
