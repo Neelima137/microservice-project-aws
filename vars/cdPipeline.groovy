@@ -34,7 +34,7 @@ def call(Map config = [:]) {
     kubectl get nodes
 
     echo "Updating manifest with new image..."
-    sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_NAME}:${IMAGE_TAG}|g" deployment-service.yml
+    sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_NAME}:${IMAGE_TAG}|" deployment-service.yml
 
     echo "Applying deployment..."
     kubectl apply -f deployment-service.yml -n ${NAMESPACE}
