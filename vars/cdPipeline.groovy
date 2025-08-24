@@ -24,47 +24,44 @@ def call(Map config = [:]) {
 
             try {
                 // Single shell block ensures AWS creds persist
-                sh """
+               sh """
                     set -e
 
-                    echo "Logging into EKS cluster..."
-                    aws eks update-kubeconfig --name microservices
+    echo "Logging into EKS cluster..."
+    aws eks update-kubeconfig --name microservices
 
-                    echo "Checking cluster nodes..."
-                    kubectl get nodes
+    echo "Checking cluster nodes..."
+    kubectl get nodes
 
-                    echo "Updating manifest with new image..."
-                    sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_NAME}:${IMAGE_TAG}|g" deployment-service.yml
+    echo "Updating manifest with new image..."
+    sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_NAME}:${IMAGE_TAG}|g" deployment-service.yml
 
-                    echo "Applying deployment..."
-                    kubectl apply -f deployment-service.yml -n ${NAMESPACE}
+    echo "Applying deployment..."
+    kubectl apply -f deployment-service.yml -n ${NAMESPACE}
 
-                    echo "Fetching deployment names..."
-                    deployments=(\$(kubectl get -f deployment-service.yml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}'))
+    echo "Fetching deployment names..."
+    deployments_str=\$(kubectl get -f deployment-service.yml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}')
 
-                    for dep in "\${deployments[@]}"; do
-                        echo "⏳ Waiting for rollout of deployment: \$dep"
-                        kubectl rollout status deployment/\$dep -n ${NAMESPACE} || echo "Rollout failed for \$dep, continuing..."
-                    done
+    for dep in \$deployments_str; do
+        echo "⏳ Waiting for rollout of deployment: \$dep"
+        kubectl rollout status deployment/\$dep -n ${NAMESPACE} || echo "Rollout failed for \$dep, continuing..."
+    done
 
-                    echo "✅ Deployment successful: ${IMAGE_NAME}:${IMAGE_TAG}"
+    echo "✅ Deployment successful: ${IMAGE_NAME}:${IMAGE_TAG}"
 
-                    echo "Checking services & pods..."
-                    kubectl get svc -n ${NAMESPACE}
-                    kubectl get pods -n ${NAMESPACE}
+    echo "Checking services & pods..."
+    kubectl get svc -n ${NAMESPACE}
+    kubectl get pods -n ${NAMESPACE}
 
-                    # -------- Optional: Prometheus + Grafana --------
-                    echo "Deploying monitoring stack..."
-                    if [ -f prometheus-deployment.yml ]; then
-                        kubectl apply -f prometheus-deployment.yml -n monitoring
-                    fi
-
-                    if [ -f grafana-deployment.yml ]; then
-                        kubectl apply -f grafana-deployment.yml -n monitoring
-                    fi
-
-                    kubectl get pods -n monitoring || echo "Monitoring stack not found, skipping."
-                """
+    # Optional: Monitoring stack
+    if [ -f prometheus-deployment.yml ]; then
+        kubectl apply -f prometheus-deployment.yml -n monitoring
+    fi
+    if [ -f grafana-deployment.yml ]; then
+        kubectl apply -f grafana-deployment.yml -n monitoring
+    fi
+    kubectl get pods -n monitoring || echo "Monitoring stack not found, skipping."
+"""
 
             } catch (err) {
                 echo "❌ Deployment failed: ${err}"
