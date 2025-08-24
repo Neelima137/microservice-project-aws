@@ -54,7 +54,7 @@ WORKDIR /app
 COPY src/cartservice.csproj ./ 
 RUN dotnet restore cartservice.csproj -r linux-musl-x64
 
-# Copy all source files (just once! )
+# Copy all source files (just once!)
 COPY src/ .
 
 # Publish
@@ -68,14 +68,17 @@ RUN dotnet publish cartservice.csproj \
     -o /out \
     --no-restore
 
+# Download grpc_health_probe in build stage
+RUN apt-get update && apt-get install -y curl && \
+    curl -L -o /out/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.11/grpc_health_probe-linux-amd64 && \
+    chmod +x /out/grpc_health_probe
+
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/runtime-deps:7.0-alpine AS runtime
 WORKDIR /app
-COPY --from=build /out ./
 
-# Install grpc_health_probe (for readiness/liveness probes)
-ADD https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/v0.4.11/grpc_health_probe-linux-amd64 /bin/grpc_health_probe
-RUN chmod +x /bin/grpc_health_probe
+# Copy published files + grpc_health_probe
+COPY --from=build /out ./
 
 EXPOSE 7070
 ENV DOTNET_EnableDiagnostics=0 \
