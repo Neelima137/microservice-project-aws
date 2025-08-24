@@ -25,6 +25,15 @@ data:
             regex: (.+):(?:\d+);(\d+)
             replacement: $1:$2
             target_label: __address__
+
+      - job_name: 'node-exporter'
+        kubernetes_sd_configs:
+          - role: node
+        metrics_path: /metrics
+        relabel_configs:
+          - action: labelmap
+            regex: __meta_kubernetes_node_label_(.+)
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -114,3 +123,49 @@ spec:
     - port: 3000
       targetPort: 3000
       nodePort: 32000
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: monitoring
+  labels:
+    app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+    spec:
+      containers:
+        - name: node-exporter
+          image: prom/node-exporter:v1.3.1
+          ports:
+            - containerPort: 9100
+          volumeMounts:
+            - mountPath: /host/proc
+              name: proc
+              readOnly: true
+            - mountPath: /host/sys
+              name: sys
+              readOnly: true
+            - mountPath: /host/root
+              name: root
+              readOnly: true
+      volumes:
+        - name: proc
+          hostPath:
+            path: /proc
+            type: Directory
+        - name: sys
+          hostPath:
+            path: /sys
+            type: Directory
+        - name: root
+          hostPath:
+            path: /
+            type: Directory
+
