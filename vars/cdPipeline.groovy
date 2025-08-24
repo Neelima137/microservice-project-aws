@@ -16,22 +16,21 @@ def call(Map config = [:]) {
             serverUrl: config.clusterUrl ?: 'https://DF85F618DC81B5AD5E6C93FC8F4DE955.gr7.ap-south-1.eks.amazonaws.com'
         ]]) {
             try {
-                // Authenticate to EKS cluster
-                sh """
-                    #!/bin/bash
-                    echo "Logging into EKS cluster..."
-                    withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
-                    sh "aws eks update-kubeconfig --name microservices"
-                    }
-
-                    kubectl get nodes
-                """
+                // Authenticate to EKS cluster using AWS credentials
+                withAWS(region: 'ap-south-1', credentials: 'aws-creds') {
+                    sh '''
+                        #!/bin/bash
+                        echo "Logging into EKS cluster..."
+                        aws eks update-kubeconfig --name microservices
+                        kubectl get nodes
+                    '''
+                }
 
                 // Update image in manifest
-                sh """
+                sh '''
                     echo "Updating manifest with new image..."
                     sed -i "s|IMAGE_PLACEHOLDER|${IMAGE_NAME}:${IMAGE_TAG}|g" deployment-service.yml
-                """
+                '''
 
                 // Apply all deployments
                 sh "echo Applying deployment... && kubectl apply -f deployment-service.yml -n ${NAMESPACE}"
@@ -53,11 +52,11 @@ def call(Map config = [:]) {
                 echo "✅ Deployment successful: ${IMAGE_NAME}:${IMAGE_TAG}"
 
                 // Optional: Check services & pods
-                sh """
+                sh '''
                     echo "Checking Services & Pods..."
                     kubectl get svc -n ${NAMESPACE}
                     kubectl get pods -n ${NAMESPACE}
-                """
+                '''
 
             } catch (err) {
                 echo "❌ Deployment failed: ${err}"
