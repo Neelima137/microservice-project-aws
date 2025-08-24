@@ -15,7 +15,7 @@ spec:
       serviceAccountName: default
       containers:
         - name: server
-          image: ${ECR_REGISTRY}/shippingservice
+          image: 483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice:shippingservice-latest
           imagePullPolicy: Always
           ports:
             - containerPort: 50051
