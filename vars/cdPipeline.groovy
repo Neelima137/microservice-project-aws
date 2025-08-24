@@ -55,20 +55,19 @@ def call(Map config = [:]) {
     kubectl get svc -n ${NAMESPACE}
     kubectl get pods -n ${NAMESPACE}
 
-    # Apply Prometheus & Grafana monitoring stack
+  # Apply Prometheus & Grafana monitoring stack
 MONITORING_NS="monitoring"
 PROM_GRAF_YAML="prometheus-grafana.yaml"
 
-if [ -f "$PROM_GRAF_YAML" ]; then
+if [ -f "\$PROM_GRAF_YAML" ]; then
     echo "Applying Prometheus & Grafana stack..."
-    kubectl apply -f "$PROM_GRAF_YAML" -n $MONITORING_NS
+    kubectl apply -f "\$PROM_GRAF_YAML" -n \$MONITORING_NS --validate=false
 else
-    echo "File $PROM_GRAF_YAML not found, skipping monitoring stack deployment."
+    echo "File \$PROM_GRAF_YAML not found, skipping monitoring stack deployment."
 fi
 
 # Verify pods
-kubectl get pods -n $MONITORING_NS || echo "Monitoring stack not found or not running."
-
+kubectl get pods -n \$MONITORING_NS || echo "Monitoring stack not found or not running."
 """
 
             } catch (err) {
