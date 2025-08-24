@@ -37,13 +37,13 @@ def call(Map config = [:]) {
                     echo "📝 Updating manifest with new image..."
                     yq eval -i '
                       (.spec.template.spec.containers[] | select(.name == "server") | .image) = "${IMAGE_NAME}:${IMAGE_TAG}"
-                    ' deployment-service.yml
+                    ' deployment-service.yaml
 
                     echo "🚀 Applying deployment..."
-                    kubectl apply -f deployment-service.yml -n ${NAMESPACE} --validate=false
+                    kubectl apply -f deployment-service.yaml -n ${NAMESPACE} --validate=false
 
                     echo "🔍 Fetching deployment names..."
-                    deployments_str=\$(kubectl get -f deployment-service.yml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}')
+                    deployments_str=\$(kubectl get -f deployment-service.yaml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}')
 
                     for dep in \$deployments_str; do
                         echo "⏳ Waiting for rollout of deployment: \$dep"
