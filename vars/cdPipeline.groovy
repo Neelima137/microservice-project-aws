@@ -19,7 +19,7 @@ def call(Map config = [:]) {
                 // Authenticate to EKS cluster
                 sh """
                     echo "Logging into EKS cluster..."
-                    aws eks --region ap-south-1 update-kubeconfig --name microservices --profile ${config.awsProfile ?: 'default'}
+                    aws eks update-kubeconfig --region ap-south-1 --name microservices 
                     kubectl get nodes
                 """
 
