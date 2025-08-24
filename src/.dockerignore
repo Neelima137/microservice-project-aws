@@ -1,6 +1,32 @@
-**/*.sh
-**/*.bat
+# **/*.sh
+# **/*.bat
+# **/bin/
+# **/obj/
+# **/out/
+ # Dockerfile*
+
+
+
+
+
+# Ignore build artifacts
 **/bin/
 **/obj/
 **/out/
-# Dockerfile*
+
+# Ignore scripts (if any)
+**/*.sh
+**/*.bat
+
+# Ignore local/test-only things
+tests/
+*.md
+
+# Ignore infra/devops files
+Jenkinsfile
+deployment-service.yaml
+.dockerignore
+Dockerfile*
+.git
+.gitignore
+
