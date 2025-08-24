@@ -39,7 +39,7 @@ def call(Map config = [:]) {
     ' deployment-service.yml
 
     echo "Applying deployment..."
-    kubectl apply -f deployment-service.yml -n ${NAMESPACE}
+    kubectl apply -f deployment-service.yml -n ${NAMESPACE} --validate=false
 
     echo "Fetching deployment names..."
     deployments_str=\$(kubectl get -f deployment-service.yml -n ${NAMESPACE} -o jsonpath='{.items[*].metadata.name}')
