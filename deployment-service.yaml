@@ -27,7 +27,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: true
-          image: ${ECR_REGISTRY}/loadgenerator
+          image:  483898563284.dkr.ecr.ap-south-1.amazonaws.com/webapps/microservice:loadgenerator-latest
           imagePullPolicy: Always
           env:
             - name: FRONTEND_ADDR
