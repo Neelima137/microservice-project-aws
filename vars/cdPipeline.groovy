@@ -73,15 +73,15 @@ def call(Map config = [:]) {
             } catch (err) {
                 echo "❌ Deployment failed: ${err}"
 
-                for (dep in deployments) {
-                    sh "kubectl rollout undo deployment/\$dep -n ${NAMESPACE} || true"
-                }
+                // for (dep in deployments) {
+                //     sh "kubectl rollout undo deployment/\$dep -n ${NAMESPACE} || true"
+                // }
 
-                sh "kubectl describe pods -n ${NAMESPACE} > describe-pods.txt || true"
-                sh "kubectl logs -l app -n ${NAMESPACE} > app-logs.txt || true"
-                archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
+                // sh "kubectl describe pods -n ${NAMESPACE} > describe-pods.txt || true"
+                // sh "kubectl logs -l app -n ${NAMESPACE} > app-logs.txt || true"
+                // archiveArtifacts artifacts: '*.txt', allowEmptyArchive: true
 
-                error("Deployment failed, rollback triggered")
+                // error("Deployment failed, rollback triggered")
             }
         }
     }
