@@ -31,8 +31,10 @@ Trivy	Scans container images for operating system and application vulnerabilitie
 Prometheus & Grafana	An open-source monitoring stack used for collecting and visualizing metrics from the EKS cluster and services.
 Export to Sheets
 ________________________________________
+
 4. Pipeline Implementation and Automation
 The core innovation of this architecture lies in its use of Jenkins Shared Libraries to achieve high reusability and scalability. The complex logic for both CI and CD is abstracted into Groovy functions, which are then called by simple Jenkinsfiles in each service repository.
+
 4.1. Continuous Integration (CI) Pipeline
 The CI pipeline is defined by a reusable Groovy function (ciPipeline) that accepts dynamic parameters. As seen in the Jenkins Stage View screenshot, the pipeline stages are executed sequentially:
 •	Checkout: Pulls the specific microservice's code.
@@ -40,6 +42,7 @@ The CI pipeline is defined by a reusable Groovy function (ciPipeline) that accep
 •	SonarQube Scan: Performs a code quality analysis. The provided SonarQube dashboard screenshot confirms the successful execution, showing a Quality Gate Passed for the "Hipstershop Ad Service," with zero critical security issues found.
 •	Docker Build & Push: Builds the Docker image and pushes it to ECR.
 •	Trivy Scan: Scans the newly created container image for vulnerabilities.
+
 4.2. Continuous Deployment (CD) Pipeline
 The CD pipeline is defined in a separate Groovy function (cdPipeline) and is triggered upon a successful CI build. It receives dynamic parameters from the main Jenkinsfile to know which service and image to deploy. The key steps include:
 •	Authentication: The pipeline securely authenticates with both AWS and the EKS cluster.
